@@ -1,0 +1,20 @@
+{
+  "name": "waraq",
+  "main": "worker.js",
+  "compatibility_date": "2026-11-22",
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "waraq-db",
+      "database_id": "c832436f-c478-4df7-af26-15bd2b13d0f1"
+    }
+  ],
+  "observability": { "enabled": true }
+}
