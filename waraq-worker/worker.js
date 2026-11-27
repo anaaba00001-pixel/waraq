@@ -1,24 +1,11 @@
-// خادم Cloudflare Pages. بيانات الدخول والاتصال بـ D1 تأتي من إعدادات المشروع.
+// خادم Cloudflare Pages. الاتصال بـ D1 يأتي من إعدادات المشروع.
 const categories = ["يومياتي", "أفكاري", "ملاحظاتي التقنية"];
-const defaults = ["دلال حائل", "تفقّد", "Dependency Guard"];
+// لا تُعرض أسماء أو مشاريع شخصية افتراضية في النسخة العامة.
+const defaults = [];
 const encoder = new TextEncoder();
 
 function json(value, status = 200) {
     return Response.json(value, { status, headers: { "Cache-Control": "no-store" } });
-}
-
-async function authorized(request, password) {
-    const header = request.headers.get("Authorization") || "";
-    if (!header.startsWith("Basic ")) return false;
-    let credentials;
-    try { credentials = atob(header.slice(6)); } catch { return false; }
-    const hash = value => crypto.subtle.digest("SHA-256", encoder.encode(value));
-    const [actual, expected] = await Promise.all([hash(credentials), hash("waraq:" + password)]);
-    const a = new Uint8Array(actual);
-    const b = new Uint8Array(expected);
-    let difference = 0;
-    for (let i = 0; i < a.length; i++) difference |= a[i] ^ b[i];
-    return difference === 0;
 }
 
 function validProject(name) {
@@ -115,15 +102,10 @@ async function mutate(db, data) {
 
 export default {
     async fetch(request, env) {
-        if (!env.WARAQ_PASSWORD || !env.DB) {
-            return new Response("أضيفي WARAQ_PASSWORD و DB في إعدادات Cloudflare.", {
+        if (!env.DB) {
+            return new Response("أضيفي ارتباط DB في إعدادات Cloudflare.", {
                 status: 503, headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" }
             });
-        }
-        if (!await authorized(request, env.WARAQ_PASSWORD)) {
-            return new Response("Sign in to Waraq", { status: 401, headers: {
-                "WWW-Authenticate": 'Basic realm="Waraq"', "Cache-Control": "no-store"
-            } });
         }
         const url = new URL(request.url);
         if (url.pathname !== "/api/notes") {
